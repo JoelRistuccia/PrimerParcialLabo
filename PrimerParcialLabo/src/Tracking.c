@@ -304,7 +304,7 @@ void sTracking_hardCodeTrackings(sTracking trackingList[]) {
 	trackingList[0].trackingID = 10000;
 
 	trackingList[1].FK_userID = 1001;
-	trackingList[1].arrivalTime = time_Current();
+	trackingList[1].arrivalTime = time_Add(180);
 	trackingList[1].distanceKM = 30;
 	trackingList[1].isEmpty = -2;
 	trackingList[1].productID = 4005;
@@ -312,7 +312,7 @@ void sTracking_hardCodeTrackings(sTracking trackingList[]) {
 	trackingList[1].trackingID = 10001;
 
 	trackingList[2].FK_userID = 1001;
-	trackingList[2].arrivalTime = time_Current();
+	trackingList[2].arrivalTime = time_Add(40);
 	trackingList[2].distanceKM = 30;
 	trackingList[2].isEmpty = -1;
 	trackingList[2].productID = 4007;
@@ -328,7 +328,7 @@ void sTracking_hardCodeTrackings(sTracking trackingList[]) {
 	trackingList[3].trackingID = 10003;
 
 	trackingList[4].FK_userID = 1001;
-	trackingList[4].arrivalTime = time_Current();
+	trackingList[4].arrivalTime = time_Add(250);
 	trackingList[4].distanceKM = 30;
 	trackingList[4].isEmpty = -1;
 	trackingList[4].productID = 4002;

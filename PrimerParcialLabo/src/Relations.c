@@ -106,13 +106,40 @@ int Relations_confirmPurchase (sUser userList[], int lenU, sProduct productList[
 int Relations_confirmSell(sProduct productList[], sUser userList[], int *index) {
 	int rtn = 0;
 	int productIndex;
+	int chosenOption;
 
 	if(productList != NULL && userList != NULL)
 	{
 		if(index > 0)
 		{
-			productIndex = sProduct_addProduct(productList, MAX_PRODUCTS);
-			productList[productIndex].FK_userID = userList[*index].userID;
+			getInt("Que accion desea realizar?\n\n"
+					"\t1) Publicar un producto\n"
+					"\t2) Reponer stock\n\n"
+					"\t0) Volver al menu anterior\n\n"
+					"Ingrese la opcion deseada: ", 10, 0, 2,
+					"\nError, ingrese una opcion valida: ", &chosenOption);
+			switch(chosenOption)
+			{
+			case 1:
+				system("cls");
+				productIndex = sProduct_addProduct(productList, MAX_PRODUCTS);
+				if(productIndex > -1)
+				{
+					productList[productIndex].FK_userID = userList[*index].userID;
+				}
+				else
+				{
+					system("cls");
+				}
+				break;
+			case 2:
+				system("cls");
+				sProduct_addProductStock(productList, MAX_PRODUCTS, userList[*index].userID);
+				break;
+			case 0:
+				system("cls");
+				break;
+			}
 		}
 		else
 		{
@@ -635,7 +662,8 @@ int Relations_loginAdminType(sUser userList[], int lenU, sProduct productList[],
 				puts("B) LISTAR TODOS LOS PRODUCTOS POR CATEGORIA");
 				puts("C) BAJA DE UN PRODUCTO");
 				puts("D) BAJA DE UN USUARIO");
-				puts("E) VER TRACKING GLOBAL\n");
+				puts("E) VER TRACKING GLOBAL");
+				puts("F) FILTRAR POR NOMBRE DE PRODUCTO\n");
 
 				puts("0) SALIR\n");
 
@@ -643,7 +671,7 @@ int Relations_loginAdminType(sUser userList[], int lenU, sProduct productList[],
 				utn_myGets(&chosenOption, 2);
 				chosenOption = toupper(chosenOption);
 				while(chosenOption != 65 && chosenOption != 66 && chosenOption != 67 && chosenOption != 68
-						&& chosenOption != 69 && chosenOption != 48)
+						&& chosenOption != 69 && chosenOption != 70 && chosenOption != 48)
 				{
 					printf("Error, ingrese una opcion valida: ");
 					utn_myGets(&chosenOption, 2);
@@ -678,6 +706,10 @@ int Relations_loginAdminType(sUser userList[], int lenU, sProduct productList[],
 					Relations_listGlobalTrackings(trackingList, lenT, productList, lenP, AVAILABLE);
 					system("pause");
 					system("cls");
+					break;
+				case 'F':
+					system("cls");
+					sProduct_findProductsByName(productList, lenP);
 					break;
 				}
 

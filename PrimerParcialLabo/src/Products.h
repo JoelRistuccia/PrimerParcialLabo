@@ -53,5 +53,12 @@ int sProduct_buyProducts(sProduct productList[], int len);
 int sProduct_addProduct(sProduct productList[], int len);
 int sProduct_deleteProduct(sProduct productList[], int lenP);
 sProduct sProduct_getProductInfo(void);
+int sProduct_listUserProducts(sProduct productList[], int len, int status1, int status2, int userID);
+int sProduct_chooseUserProduct(sProduct productList[], int len, int userID);
+int sProduct_addProductStock(sProduct productList[], int len, int userID);
+int sProduct_searchProductsByName(sProduct productList[], int len, int status1, int status2, char productName[]);
+int sProduct_sortProductsByStock(sProduct productList[], int len);
+int sProduct_verifyProductsByName(sProduct productList[], int len, char productName[]);
+int sProduct_findProductsByName(sProduct productList[], int len);
 
 #endif /* PRODUCTS_H_ */

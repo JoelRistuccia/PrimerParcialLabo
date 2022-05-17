@@ -15,8 +15,13 @@ int main(void) {
 	sTracking trackingList[MAX_TRACKINGS];
 
 	sUser_initUsers(userList, MAX_USERS);//INIT USERS ARRAY
+	sUser_hardCodeUserData(userList);
+
 	sProduct_initProducts(productList, MAX_PRODUCTS);//INIT PRODUCTS ARRAY
+	sProduct_hardCodeProducts(productList);
+
 	sTracking_initTracking(trackingList, MAX_TRACKINGS);//INIT TRACKINGS ARRAY
+	sTracking_hardCodeTrackings(trackingList);
 
 	do{
 		system("cls");

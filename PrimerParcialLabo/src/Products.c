@@ -276,7 +276,7 @@ int sProduct_findProductIndexById(sProduct productList[], int len, int givenID) 
 }
 
 int sProduct_addProduct(sProduct productList[], int len) {
-	int rtn = 0;
+	int rtn = -1;
 	int index;
 	sProduct auxiliary;
 
@@ -421,11 +421,287 @@ int sProduct_verifyProductsGlobalStatus(sProduct productList[], int len, int sta
 	return rtn;
 }
 
+int sProduct_chooseUserProduct(sProduct productList[], int len, int userID) {
+	int rtn;
+	int idProduct;
+	int indexProduct;
+	int chosenOption;
+
+	if(productList != NULL)
+	{
+		if(len > 0)
+		{
+			sProduct_sortProductsByCategory(productList, len);
+			sProduct_listUserProducts(productList, len, FULL, OUT_OF_STOCK, userID);
+			getInt("Que accion desea realizar?\n\n"
+					"\t1) Reponer stock de un producto\n"
+					"\t0) Volver al menu anterior\n\n"
+					"Ingrese la opcion deseada: ", 10, 0, 1,
+					"\nError, ingrese una opcion valida: ", &chosenOption);
+			if(chosenOption == 1)
+			{
+				getInt("\nIngrese el ID del producto del cual desea agregar stock: ", 10, 4000, 6000,
+						"Error, ingrese un ID de la lista: ", &idProduct);
+				indexProduct = sProduct_findProductIndexById(productList, len, idProduct);
+				while(productList[indexProduct].FK_userID != userID)
+				{
+					getInt("\nError, ingrese un ID de la lista: ", 10, 4000, 6000,
+							"Error, ingrese un ID de la lista: ", &idProduct);
+					indexProduct = sProduct_findProductIndexById(productList, len, idProduct);
+				}
+				rtn = indexProduct;
+			}
+			else
+			{
+				rtn = -1;//RETURNS -1 IF WANT TO GO BACK
+				system("cls");
+			}
+		}
+		else
+		{
+			rtn = -2;//ERROR - ARRAY LENGHT
+		}
+	}
+	else
+	{
+		rtn = -3;//ERROR - NULL POINTER
+	}
+
+	return rtn;
+}
+
+
+int sProduct_listUserProducts(sProduct productList[], int len, int status1, int status2, int userID) {
+	int rtn = 0;
+	int i;
+
+	puts("\n\t> LISTADO DE PRODUCTOS");
+	puts("+----+------------------------+----------+----------+---------------+");
+	printf("| %1s%2s%15s%10s%8s%3s%6s%5s%10s%6s\n", "ID", "|", "NOMBRE", "|", "PRECIO", "|",
+			"STOCK", "|", "CATEGORIA", "|");
+	puts("+----+------------------------+----------+----------+---------------+");
+
+	if (productList != NULL)
+	{
+		if (len > 0)
+		{
+			for (i = 0; i < len; i++)
+			{		//LISTS EVERY PRODUCT WITH STATUS GIVEN
+				if(productList[i].FK_userID == userID)
+				{
+					if (productList[i].isEmpty == status1 || productList[i].isEmpty == status2)
+					{
+						sProduct_printProduct(productList[i]);
+						rtn = 1;
+					}
+				}
+			}
+		}
+		else
+		{
+			rtn = -1;//ERROR - ARRAY LENGHT
+		}
+	}
+	else
+	{
+		rtn = -2;//ERROR - NULL POINTER
+	}
+	puts("+----+------------------------+----------+----------+---------------+\n");
+
+	return rtn;
+}
+
+int sProduct_addProductStock(sProduct productList[], int len, int userID) {
+	int rtn = 0;
+	int productIndex;
+	int stockToAdd;
+
+	if(productList != NULL)
+	{
+		if(len > 0 && userID > 0)
+		{
+
+			productIndex = sProduct_chooseUserProduct(productList, len, userID);
+			if(productIndex > -1)
+			{
+			getInt("Ingrese la cantidad de unidades que desea agregar: ", 10, 1, 10000,
+					"\nError, ingrese una cantidad valida: ", &stockToAdd);
+			if(continueOrNot("Desea confirmar el ingreso de stock? (S/N): ",
+					"Error, ingrese una opcion valida (S/N)"))
+			{
+				productList[productIndex].stock += stockToAdd;
+			}
+			}
+			else
+			{
+				system("cls");
+			}
+		}
+		else
+		{
+			rtn = -1;//ERROR - INVALID INDEX
+		}
+	}
+	else
+	{
+		rtn = -2;//ERROR - NULL POINTER
+	}
+
+	return rtn;
+}
+
+int sProduct_searchProductsByName(sProduct productList[], int len, int status1, int status2, char productName[]) {
+	int rtn = 0;
+	int i;
+
+	puts("\n\t> LISTADO DE PRODUCTOS");
+	puts("+----+------------------------+----------+----------+---------------+");
+	printf("| %1s%2s%15s%10s%8s%3s%6s%5s%10s%6s\n", "ID", "|", "NOMBRE", "|", "PRECIO", "|",
+			"STOCK", "|", "CATEGORIA", "|");
+	puts("+----+------------------------+----------+----------+---------------+");
+
+	if (productList != NULL && productName != NULL)
+	{
+		if (len > 0)
+		{
+			for (i = 0; i < len; i++)
+			{	//LISTS EVERY PRODUCT WITH STATUS GIVEN
+				if(strcmp(productList[i].productName, productName) == 0)
+				{
+					if (productList[i].isEmpty == status1 || productList[i].isEmpty == status2)
+					{
+						sProduct_printProduct(productList[i]);
+						rtn = 1;
+					}
+				}
+			}
+		}
+		else
+		{
+			rtn = -1;//ERROR - ARRAY LENGHT
+		}
+	}
+	else
+	{
+		rtn = -2;//ERROR - NULL POINTER
+	}
+	puts("+----+------------------------+----------+----------+---------------+\n");
+
+	return rtn;
+}
+
+int sProduct_sortProductsByStock(sProduct productList[], int len) {
+
+	int rtn;
+	int i;
+	int j;
+	sProduct aux;
+
+	if (productList != NULL)
+	{
+		if(len > 0)
+		{
+			for(i = 0; i < len - 1; i++)//LOOP OVER THE ARRAY
+			{
+				for(j = i + 1; j < len; j++)//LOOP OVER THE ARRAY 1 INDEX
+				{
+					//ORDERING CRITERIA - BY CATEGORY - ASCENDING
+					if (productList[i].stock > productList[j].category)
+					{
+						aux = productList[i];//EXCHANGE ARRAY POSITIONS
+						productList[i] = productList[j];
+						productList[j] = aux;
+					}
+				}
+			}
+		}
+		else
+		{
+			rtn = -2;//ERROR - ARRAY LENGHT
+		}
+	}
+	else
+	{
+		rtn = -3;//ERROR - ARRAY DOESN'T EXIST
+	}
+
+	return rtn;
+}
+
+int sProduct_findProductsByName(sProduct productList[], int len) {
+	int rtn = 0;
+	char productName[MAX_LEN_NAME];
+	int productReturn;
+
+	if (productList != NULL)
+	{
+		if (len > 0)
+		{
+			sProduct_sortProductsByStock(productList, len);
+			printf("Ingrese el nombre del producto que desea buscar: ");
+			utn_myGets(productName, MAX_LEN_NAME);
+			productReturn = sProduct_verifyProductsByName(productList, len, productName);
+			while(productReturn < 1)
+			{
+				printf("No existen productos dados de alta con ese nombre, intente nuevamente: ");
+				utn_myGets(productName, MAX_LEN_NAME);
+				productReturn = sProduct_verifyProductsByName(productList, len, productName);
+			}
+			sProduct_searchProductsByName(productList, len, FULL, OUT_OF_STOCK, productName);
+			system("pause");
+			system("cls");
+
+		}
+		else
+		{
+			rtn = -1;//ERROR - ARRAY LENGHT
+		}
+	}
+	else
+	{
+		rtn = -2;//ERROR - NULL POINTER
+	}
+
+
+	return rtn;
+}
+
+int sProduct_verifyProductsByName(sProduct productList[], int len, char productName[]) {
+	int rtn = 0;
+	int i;
+
+	if (productList != NULL && productName != NULL)
+	{
+		if (len > 0)
+		{
+			for (i = 0; i < len; i++)
+			{	//LISTS EVERY PRODUCT WITH STATUS GIVEN
+				if(strcmp(productList[i].productName, productName) == 0)
+				{
+					if (productList[i].isEmpty == FULL|| productList[i].isEmpty == OUT_OF_STOCK)
+					{
+						rtn = 1;
+					}
+				}
+			}
+		}
+		else
+		{
+			rtn = -1;//ERROR - ARRAY LENGHT
+		}
+	}
+	else
+	{
+		rtn = -2;//ERROR - NULL POINTER
+	}
+
+	return rtn;
+}
 
 void sProduct_hardCodeProducts (sProduct productList[]) {
 
 	productList[0].productID = 4000;
-	productList[0].FK_userID = 1000;
+	productList[0].FK_userID = 1001;
 	productList[0].isEmpty = 2;
 	productList[0].category = 4;
 	strcpy(productList[0].productName, "Pendrive Kingston");
@@ -433,7 +709,7 @@ void sProduct_hardCodeProducts (sProduct productList[]) {
 	productList[0].stock = 100;
 
 	productList[1].productID = 4001;
-	productList[1].FK_userID = 1000;
+	productList[1].FK_userID = 1001;
 	productList[1].isEmpty = 2;
 	productList[1].category = 3;
 	strcpy(productList[1].productName, "Pantalon Jean");
@@ -441,7 +717,7 @@ void sProduct_hardCodeProducts (sProduct productList[]) {
 	productList[1].stock = 25;
 
 	productList[2].productID = 4002;
-	productList[2].FK_userID = 1000;
+	productList[2].FK_userID = 1001;
 	productList[2].isEmpty = 1;
 	productList[2].category = 1;
 	strcpy(productList[2].productName, "Papas Pringles");
