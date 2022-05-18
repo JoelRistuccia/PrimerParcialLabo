@@ -530,6 +530,9 @@ int sProduct_addProductStock(sProduct productList[], int len, int userID) {
 					"Error, ingrese una opcion valida (S/N)"))
 			{
 				productList[productIndex].stock += stockToAdd;
+				printf("El stock se ha renovado exitosamente.\n\n");
+				system("pause");
+				system("cls");
 			}
 			}
 			else
@@ -763,4 +766,12 @@ void sProduct_hardCodeProducts (sProduct productList[]) {
 	strcpy(productList[7].productName, "Memoria RAM 16Gb");
 	productList[7].price = 11000;
 	productList[7].stock = 10;
+
+	productList[8].productID = 4008;
+	productList[8].FK_userID = 1001;
+	productList[8].isEmpty = 2;
+	productList[8].category = 4;
+	strcpy(productList[8].productName, "Pendrive Kingston");
+	productList[8].price = 2000;
+	productList[8].stock = 55;
 }

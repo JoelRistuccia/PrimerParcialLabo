@@ -11,15 +11,15 @@ int Relations_userLogin(sUser userList[], int lenU, sProduct productList[], int 
 	{
 		if(lenP > 0 && lenU > 0)
 		{
-			fflush(stdin);
+			fflush(stdin);//ASK AND VALIDATE USER DATA AND RETURNS INDEX OF THE USER LOGGED
 			userIndex = sUser_getLoginData(userList, lenU);
 
 			switch(userList[userIndex].type)
 			{
-			case USER:
+			case USER://IF USERTYPE IS USER
 				Relations_loginUserType(userList, lenU, productList, lenP, trackingList, lenT, userIndex);
 				break;
-			case ADMIN:
+			case ADMIN://IF USERTYPE IS ADMIN
 				Relations_loginAdminType(userList, lenU, productList, lenP, trackingList, lenT);
 				break;
 			}
@@ -34,7 +34,7 @@ int Relations_userLogin(sUser userList[], int lenU, sProduct productList[], int 
 		rtn = -2;//ERROR - NULL POINTER
 	}
 
-	return rtn;
+	return rtn;//RETURN 0 IF OK
 }
 
 
@@ -51,20 +51,20 @@ int Relations_confirmPurchase (sUser userList[], int lenU, sProduct productList[
 	if(userList != NULL && productList != NULL && trackingList != NULL)//VERIFIES IF THE ARRAYS EXISTS
 	{
 		if(lenU > 0 && lenP > 0 && lenT > 0)//VERIFIES ARRAY LENGHTS
-		{
+		{	//VERIFY IF THERES PRODUCTS AVAILABLE TO BUY
 			purchaseIndex = sProduct_verifyProductsGlobalStatus(productList, lenP, FULL, OUT_OF_STOCK);
-			if(purchaseIndex == 1)
-			{
-				purchaseIndex = sProduct_buyProducts(productList, lenP);//SAVE PRODUCT INDEX
+			if(purchaseIndex == 1)//RETURNS 1 IF FIND AT LEAST AN AVAILABLE PRODUCT
+			{					//ASKS WHAT PRODUCT WANTS TO BUY
+				purchaseIndex = sProduct_buyProducts(productList, lenP);//RETURNS PRODUCT INDEX
 				if(purchaseIndex >= 0)
-				{
+				{	//ASKS QUANTITY TO BUY AND CALCULATE THE TOTAL PRICE
 					getInt("Ingrese la cantidad que desea comprar: ", 10, 1, productList[purchaseIndex].stock,
 							"Error, ingrese una cantidad valida: ", &quantityToBuy);
 					priceToPay = productList[purchaseIndex].price * quantityToBuy;
 					printf("\nEl total de su compra es: $%d\n\n", priceToPay);
-
+						//ASKS FOR CONFIRMATION
 					if(continueOrNot("Desea confirmar la compra? (S/N): ", "Error, ingrese una opcion valida (S/N): "))
-					{
+					{	//IF USER CONFIRMS SUBSTRACT THE QUANTITY FROM STOCK AND CREATES THE TRACKING
 						productList[purchaseIndex].stock -= quantityToBuy;
 						trackingIndex = sTracking_addTracking(trackingList, lenT, productList[purchaseIndex].productID, quantityToBuy,
 								userList[userIndex].postalCode);
@@ -82,7 +82,7 @@ int Relations_confirmPurchase (sUser userList[], int lenU, sProduct productList[
 				}
 			}
 			else
-			{
+			{	//IF THERES NO PRODUCTS AVAILABLE TO BUY
 				system("cls");
 				printf("No hay productos disponibles a la venta.\n\n");
 				system("pause");
@@ -99,7 +99,7 @@ int Relations_confirmPurchase (sUser userList[], int lenU, sProduct productList[
 		rtn = -2;//ERROR - NULL POINTER
 	}
 
-	return rtn;
+	return rtn;//RETURN 0 IF OK
 }
 
 
@@ -111,7 +111,7 @@ int Relations_confirmSell(sProduct productList[], sUser userList[], int *index) 
 	if(productList != NULL && userList != NULL)
 	{
 		if(index > 0)
-		{
+		{	//ASKS FOR AN OPTION
 			getInt("Que accion desea realizar?\n\n"
 					"\t1) Publicar un producto\n"
 					"\t2) Reponer stock\n\n"
@@ -121,22 +121,22 @@ int Relations_confirmSell(sProduct productList[], sUser userList[], int *index) 
 			switch(chosenOption)
 			{
 			case 1:
-				system("cls");
+				system("cls");//ASKS FOR NEW PRODUCT DATA
 				productIndex = sProduct_addProduct(productList, MAX_PRODUCTS);
 				if(productIndex > -1)
-				{
+				{	//IF PRODUCT ADD ITS OK ASSING THE FOREING KEY OF THE SELLER
 					productList[productIndex].FK_userID = userList[*index].userID;
 				}
 				else
-				{
+				{	//GO BACK
 					system("cls");
 				}
 				break;
 			case 2:
-				system("cls");
+				system("cls");//ASKS FOR PRODUCT STOCK RENEWAL
 				sProduct_addProductStock(productList, MAX_PRODUCTS, userList[*index].userID);
 				break;
-			case 0:
+			case 0://GO BACK
 				system("cls");
 				break;
 			}
@@ -151,15 +151,15 @@ int Relations_confirmSell(sProduct productList[], sUser userList[], int *index) 
 		rtn = -2;//ERROR - NULL POINTER
 	}
 
-	return rtn;
+	return rtn;//RETURN 0 IF OK
 }
 
 void Relations_printPurchase(sTracking tracking, sProduct product) {
 
 	float totalPrice;
-
+	//CALCULATES THE TOTAL PRICE
 	totalPrice = tracking.quantity * product.price;
-
+	//PRINTS ALL THE PURCHASE INFO
 	printf("|%d", tracking.trackingID);
 	printf("%-2s", "|");
 	printf("%-23s", product.productName);
@@ -192,7 +192,7 @@ int Relations_listPurchases(sTracking trackingList[], int lenT, sProduct product
 	int index;
 	int productID;
 
-	puts("\n\t> LISTADO DE COMPRAS");
+	puts("\n\t> LISTADO DE COMPRAS");//HEADER
 	puts("+-----+------------------------+----------+----------+---------------+");
 	printf("| %1s%3s%14s%11s%8s%3s%6s%5s%10s%6s\n", "ID", "|", "PRODUCTO", "|", "CANTIDAD", "|",
 			"TOTAL", "|", "ESTADO", "|");
@@ -203,12 +203,13 @@ int Relations_listPurchases(sTracking trackingList[], int lenT, sProduct product
 		if (lenT > 0 && lenP > 0)
 		{
 			for (i = 0; i < lenT; i++)
-			{
+			{	//ASKS FOR TRACKINGS WITH FOREIGN KEY OF BUYER
 				if (trackingList[i].FK_userID == userID)
-				{
-					productID = trackingList[i].productID;
+				{	//IF FINDS A TRACKING SAVES THE PRODUCT ID
+					productID = trackingList[i].productID;//FIND THE PRODUCT INDEX OF THE ID
 					index = sProduct_findProductIndexById(productList, lenP, productID);
 					Relations_printPurchase(trackingList[i], productList[index]);
+					//PRINTS THE PURCHASE INFO (PRODUCT/TRACKING)
 				}
 
 			}
@@ -237,27 +238,27 @@ int Relations_checkPurchasesStatus(sTracking trackingList[], int lenT, sProduct 
 	if(trackingList != NULL && productList != NULL)
 	{
 		if(lenT > 0 && lenP > 0)
-		{
+		{	//CHECK IF USER HAS ANY TRACKING / RETURN INDEX IF FIND AT LEAST 1 TRACKING
 			userIndex = sTracking_findTrackingIndexByUserId(trackingList, lenT, userID);
-			if(userIndex >= 0)
+			if(userIndex >= 0)//IF FIND AT LEAST 1 TRACKING
 			{
-				sTracking_trackingStatusUpdate(trackingList, lenT);
+				sTracking_trackingStatusUpdate(trackingList, lenT);//UPDATE THE TRACKINGS STATUS
 				Relations_listPurchases(trackingList, lenT, productList, lenP, userID);
-				getInt("\nQue accion desea realizar?\n\n"
-						"\t1) Cancelar una compra\n "
+				getInt("\nQue accion desea realizar?\n\n"//LISTS ALL THE TRACKINGS OF THE USER
+						"\t1) Cancelar una compra\n "//ASKS FOR AN OPTION
 						"\t0) Volver al menu anterior\n\n",
 						10, 0, 1, "Error, ingrese una opcion valida\n", &chosenOption);
 				if(chosenOption == 1)
-				{
+				{	//ASKS FOR ID TO CANCEL
 					sTracking_deleteTracking(trackingList, lenT);
 				}
 				else
-				{
+				{	//GO BACK
 					system("cls");
 				}
 			}
 			else
-			{
+			{	//IF DOESN'T FIND ANY TRACKINGS FOR THE USER
 				system("cls");
 				printf("Usted no tiene compras disponibles para mostrar.\n\n");
 				system("pause");
@@ -284,7 +285,7 @@ int Relations_checkFinishedSellings(sTracking trackingList[], int lenT, sProduct
 	int i;
 	int j;
 
-	puts("\n\t> LISTADO DE VENTAS FINALIZADAS");
+	puts("\n\t> LISTADO DE VENTAS FINALIZADAS");//HEADER
 	puts("+-----+------------------------+----------+----------+---------------+");
 	printf("| %1s%3s%14s%11s%8s%3s%6s%5s%10s%6s\n", "ID", "|", "PRODUCTO", "|", "CANTIDAD", "|",
 			"TOTAL", "|", "ESTADO", "|");
@@ -294,16 +295,16 @@ int Relations_checkFinishedSellings(sTracking trackingList[], int lenT, sProduct
 	{
 		if (lenT > 0 && lenP > 0)
 		{
-			for (i = 0; i < lenP; i++)
-			{
+			for (i = 0; i < lenP; i++)//LOOP OVER THE PRODUCTS ARRAY
+			{	//CHECK FOR PRODUCTS WITH THE FOREIGN KEY OF THE SELLER
 				if(productList[i].FK_userID == userID)
 				{
-					for(j = 0; j < lenT; j++)
-					{
+					for(j = 0; j < lenT; j++)//LOOP OVER THE TRACKINGS ARRAY
+					{	//CHECK FOR TRACKINGS WITH THE SAME ID OF THE PRODUCT
 						if(trackingList[j].productID == productList[i].productID)
-						{
+						{	//CHECK TRACKING STATUS
 							if(trackingList[j].isEmpty == DELIVERED || trackingList[j].isEmpty == CANCELLED)
-							{
+							{	//IF ALL CONDITIONS MATCHES PRINTS THE TRACKING/PRODUCT INFO
 								Relations_printPurchase(trackingList[j], productList[i]);
 							}
 						}
@@ -324,14 +325,14 @@ int Relations_checkFinishedSellings(sTracking trackingList[], int lenT, sProduct
 	}
 	puts("+-----+------------------------+----------+----------+---------------+\n\n");
 
-	return rtn;
+	return rtn;//RETURN 0 IF OK
 }
 
 int Relations_checkProductsStock(sProduct productList[], int len, int userID) {
 	int rtn = 0;
 	int i;
 
-	puts("\n\t> LISTADO DE PRODUCTOS CON STOCK DISPONIBLE");
+	puts("\n\t> LISTADO DE PRODUCTOS CON STOCK DISPONIBLE");//HEADER
 	puts("+----+------------------------+----------+----------+---------------+");
 	printf("| %1s%2s%15s%10s%8s%3s%6s%5s%10s%6s\n", "ID", "|", "NOMBRE", "|", "PRECIO", "|",
 			"STOCK", "|", "CATEGORIA", "|");
@@ -341,12 +342,12 @@ int Relations_checkProductsStock(sProduct productList[], int len, int userID) {
 	{
 		if(len > 0 && userID > 0)
 		{
-			for(i = 0; i < len; i++)
-			{
+			for(i = 0; i < len; i++)//LOOP OVER THE ARRAY
+			{	//CHECK IF FOREIG KEY OF THE PRODUCT MATCHES WITH USER ID
 				if(productList[i].FK_userID == userID)
-				{
+				{	//CHECK IF PRODUCT THERES STOCK AVAILABLE
 					if(productList[i].stock > 0)
-					{
+					{	//IF ALL CONDITIONS MATCHES PRINTS THE PRODUCT
 						sProduct_printProduct(productList[i]);
 					}
 				}
@@ -375,7 +376,7 @@ int Relations_checkSellingsStatus(sTracking trackingList[], int lenT, sProduct p
 	if(trackingList != NULL && productList != NULL)
 	{
 		if(lenT > 0 && lenP > 0)
-		{
+		{	//ASKS FOR AN OPTION
 			getInt("Que accion desea realizar?\n\n"
 					"\t1) Listado de ventas finalizadas\n"
 					"\t2) Ver productos con stock disponible\n\n"
@@ -384,19 +385,19 @@ int Relations_checkSellingsStatus(sTracking trackingList[], int lenT, sProduct p
 					"\nError, ingrese una opcion valida: ", &chosenOption);
 
 			if(chosenOption == 1)
-			{
+			{	//SORT PRODUCTS BY CATEGORY
 				sProduct_sortProductsByCategory(productList, lenP);
-				sTracking_trackingStatusUpdate(trackingList, lenT);
+				sTracking_trackingStatusUpdate(trackingList, lenT);//UPDATE TRACKINGS STATUS
 				if(Relations_verifyFinishedSellings(trackingList, lenT, productList, lenP, userID))
-				{
-					system("cls");
+				{//VERIFIES IF THERES ANY FINISHED SELLING
+					system("cls");//IF FIND ANY FINISHED SELLING PRINTS THE LIST
 					Relations_checkFinishedSellings(trackingList, lenT, productList, lenP, userID);
 					system("pause");
 					system("cls");
 				}
 				else
 				{
-					system("cls");
+					system("cls");//IF THERES NO FINISHED SELLINGS
 					printf("Usted no tiene ventas finalizadas para mostrar.\n\n");
 					system("pause");
 					system("cls");
@@ -405,10 +406,10 @@ int Relations_checkSellingsStatus(sTracking trackingList[], int lenT, sProduct p
 			else
 			{
 				if(chosenOption == 2)
-				{
+				{	//VERIFIES IF THERES ANY PRODUCT WITH STOCK AVAILABLE
 					if(Relations_verifyProductsStock(productList, lenP, userID))
 					{
-						system("cls");
+						system("cls");//IF FIND ANY PRODUCT WITH STOCK PRINTS THE LIST
 						Relations_checkProductsStock(productList, lenP, userID);
 						system("pause");
 						system("cls");
