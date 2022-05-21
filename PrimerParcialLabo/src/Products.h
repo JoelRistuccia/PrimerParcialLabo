@@ -60,5 +60,6 @@ int sProduct_searchProductsByName(sProduct productList[], int len, int status1, 
 int sProduct_sortProductsByStock(sProduct productList[], int len);
 int sProduct_verifyProductsByName(sProduct productList[], int len, char productName[]);
 int sProduct_findProductsByName(sProduct productList[], int len);
+int sProduct_verifyUserProducts(sProduct productList[], int len, int userID);
 
 #endif /* PRODUCTS_H_ */

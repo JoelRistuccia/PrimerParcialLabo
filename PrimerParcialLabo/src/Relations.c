@@ -17,9 +17,11 @@ int Relations_userLogin(sUser userList[], int lenU, sProduct productList[], int 
 			switch(userList[userIndex].type)
 			{
 			case USER://IF USERTYPE IS USER
+				fflush(stdin);
 				Relations_loginUserType(userList, lenU, productList, lenP, trackingList, lenT, userIndex);
 				break;
 			case ADMIN://IF USERTYPE IS ADMIN
+				fflush(stdin);
 				Relations_loginAdminType(userList, lenU, productList, lenP, trackingList, lenT);
 				break;
 			}
@@ -46,7 +48,6 @@ int Relations_confirmPurchase (sUser userList[], int lenU, sProduct productList[
 	int priceToPay;
 	int quantityToBuy;
 	int trackingIndex;
-	char arrivalTime[MAX_LEN_STRING];
 
 	if(userList != NULL && productList != NULL && trackingList != NULL)//VERIFIES IF THE ARRAYS EXISTS
 	{
@@ -69,8 +70,8 @@ int Relations_confirmPurchase (sUser userList[], int lenU, sProduct productList[
 						trackingIndex = sTracking_addTracking(trackingList, lenT, productList[purchaseIndex].productID, quantityToBuy,
 								userList[userIndex].postalCode);
 						trackingList[trackingIndex].FK_userID = userList[userIndex].userID;
-						strcpy(arrivalTime, ctime(&trackingList[trackingIndex].arrivalTime));
-						printf("\nSu compra ha sido efectuada.\nFecha y hora estimadas para su envio: %s\n", arrivalTime);
+						printf("\nSu compra ha sido efectuada.\nFecha y hora estimadas para su envio: %s\n",
+								ctime(&trackingList[trackingIndex].arrivalTime));
 						puts("Gracias por su compra!");
 						system("pause");
 						system("cls");
@@ -117,7 +118,7 @@ int Relations_confirmSell(sProduct productList[], sUser userList[], int *index) 
 					"\t2) Reponer stock\n\n"
 					"\t0) Volver al menu anterior\n\n"
 					"Ingrese la opcion deseada: ", 10, 0, 2,
-					"\nError, ingrese una opcion valida: ", &chosenOption);
+					"Error, ingrese una opcion valida: ", &chosenOption);
 			switch(chosenOption)
 			{
 			case 1:
@@ -246,8 +247,9 @@ int Relations_checkPurchasesStatus(sTracking trackingList[], int lenT, sProduct 
 				Relations_listPurchases(trackingList, lenT, productList, lenP, userID);
 				getInt("\nQue accion desea realizar?\n\n"//LISTS ALL THE TRACKINGS OF THE USER
 						"\t1) Cancelar una compra\n "//ASKS FOR AN OPTION
-						"\t0) Volver al menu anterior\n\n",
-						10, 0, 1, "Error, ingrese una opcion valida\n", &chosenOption);
+						"\t0) Volver al menu anterior\n\n"
+						"Ingrese la opcion deseada: ",
+						10, 0, 1, "Error, ingrese una opcion valida: ", &chosenOption);
 				if(chosenOption == 1)
 				{	//ASKS FOR ID TO CANCEL
 					sTracking_deleteTracking(trackingList, lenT);
@@ -539,6 +541,7 @@ int Relations_loginUserType(sUser userList[], int lenU, sProduct productList[], 
 
 				puts("0) SALIR\n");
 
+				fflush(stdin);
 				getInt("Ingrese la opcion deseada: ", 10, 0, 4, "Error, ingrese una opcion valida\n",
 						&chosenOption);
 

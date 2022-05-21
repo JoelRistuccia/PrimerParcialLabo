@@ -33,6 +33,7 @@ int main(void) {
 
 		puts("0) SALIR\n");
 		//ASKS FOR MENU OPTION
+		fflush(stdin);
 		getInt("Ingrese la opcion deseada: ", 10, 0, 2, "Error, ingrese una opcion valida: ", &chosenOption);
 
 
@@ -40,10 +41,12 @@ int main(void) {
 		{
 		case 1:
 			system("cls");//LOGIN OPTION
+			fflush(stdin);
 			Relations_userLogin(userList, MAX_USERS, productList, 100, trackingList, 1000);
 			break;
 		case 2:
 			system("cls");//REGISTER OPTION
+			fflush(stdin);
 			sUser_userRegister(userList, MAX_USERS);
 			break;
 		}

@@ -2,7 +2,7 @@
 
 static int sProduct_getProductID(void);
 static int sProduct_getProductID(void) {
-	static int product_id = 4008;//CREATE PRODUCT ID
+	static int product_id = 4009;//CREATE PRODUCT ID
 	return product_id++;
 }
 
@@ -157,24 +157,19 @@ int sProduct_sortProductsByCategory(sProduct productList[], int len) {
 						productList[i] = productList[j];
 						productList[j] = aux;
 					}
-				}
-			}
-
-			for(i = 0; i < len - 1; i++)
-			{
-				for(j = i + 1; j < len; j++)
-				{
-					if(productList[i].category == productList[j].category)
+					else
 					{
-						if((strcmp(productList[i].productName, productList[j].productName)) > 0)
+						if(productList[i].category == productList[j].category)
 						{
-							aux = productList[i];//EXCHANGE ARRAY POSITIONS
-							productList[i] = productList[j];
-							productList[j] = aux;
+							if((strcmp(productList[i].productName, productList[j].productName)) > 0)
+							{
+								aux = productList[i];//EXCHANGE ARRAY POSITIONS
+								productList[i] = productList[j];
+								productList[j] = aux;
+							}
 						}
 					}
 				}
-				rtn = 0;//RETURN 0 IF OK
 			}
 		}
 		else
@@ -206,10 +201,10 @@ int sProduct_buyProducts(sProduct productList[], int len) {
 					"\t1) Comprar un producto\n"
 					"\t0) Volver al menu anterior\n\n"
 					"Ingrese la opcion deseada: ", 10, 0, 1,
-					"\nError, ingrese una opcion valida: ", &chosenOption);
+					"Error, ingrese una opcion valida: ", &chosenOption);
 			if(chosenOption == 1)
 			{
-				getInt("\nIngrese el ID del producto que desea comprar: ", 10, 4000, 6000,
+				getInt("Ingrese el ID del producto que desea comprar: ", 10, 4000, 6000,
 						"Error, ingrese un ID de la lista: ", &idProduct);
 				indexProduct = sProduct_findProductIndexById(productList, len, idProduct);
 				while(productList[indexProduct].stock == 0)
@@ -323,6 +318,7 @@ int sProduct_deleteProduct(sProduct productList[], int lenP) {
 	int rtn = 0;
 	int idToCancel;
 	int indexToCancel;
+	int chosenOption;
 
 	if(productList != NULL)
 	{
@@ -330,23 +326,35 @@ int sProduct_deleteProduct(sProduct productList[], int lenP) {
 		{
 			sProduct_sortProductsByCategory(productList, lenP);
 			sProduct_listProducts(productList, lenP, FULL, OUT_OF_STOCK);
-			getInt("Ingrese el ID del producto que desea dar de baja del sistema: ", 10, 4000, 5000,
-					"\nError, ingrese un ID de la lista: ", &idToCancel);
-			indexToCancel = sProduct_findProductIndexById(productList, lenP, idToCancel);
-
-			while(indexToCancel == -1)
+			getInt("Que accion desea realizar?\n\n"
+					"\t1) Dar de baja un producto\n"
+					"\t0) Volver al menu anterior\n\n"
+					"Ingrese la opcion deseada: ", 10, 0, 1,
+					"Error, ingrese una opcion valida: ", &chosenOption);
+			if(chosenOption == 1)
 			{
-				getInt("El ID no existe, por favor ingrese un ID de la lista: ", 10, 4000, 5000,
+				getInt("Ingrese el ID del producto que desea dar de baja del sistema: ", 10, 4000, 5000,
 						"\nError, ingrese un ID de la lista: ", &idToCancel);
 				indexToCancel = sProduct_findProductIndexById(productList, lenP, idToCancel);
-			}
 
-			if(continueOrNot("\nDesea confirmar la baja? (S/N): ", "\nError, ingrese una opcion "
-					"valida (S/N): "))
+				while(indexToCancel == -1)
+				{
+					getInt("El ID no existe, por favor ingrese un ID de la lista: ", 10, 4000, 5000,
+							"\nError, ingrese un ID de la lista: ", &idToCancel);
+					indexToCancel = sProduct_findProductIndexById(productList, lenP, idToCancel);
+				}
+
+				if(continueOrNot("\nDesea confirmar la baja? (S/N): ", "\nError, ingrese una opcion "
+						"valida (S/N): "))
+				{
+					productList[indexToCancel].isEmpty = -1;
+					puts("El producto ha sido dado de baja del sistema.\n");
+					system("pause");
+					system("cls");
+				}
+			}
+			else
 			{
-				productList[indexToCancel].isEmpty = -1;
-				puts("El producto ha sido dado de baja del sistema.\n");
-				system("pause");
 				system("cls");
 			}
 		}
@@ -379,10 +387,10 @@ sProduct sProduct_getProductInfo(void) {
 		auxiliary.category = category;
 		printf("Ingrese el nombre del producto: ");
 		utn_myGets(auxiliary.productName, MAX_LEN_NAME);
-		getFloat("\nIngrese el precio del producto: ", 10, 1, 1000000,
-				"\nError, ingrese un precio valido: ", &auxiliary.price);
-		getInt("\nIngrese la cantidad de unidades que desea publicar: ", 10, 1, 1000000,
-				"\nError, ingrese una cantidad valida: ", &auxiliary.stock);
+		getFloat("Ingrese el precio del producto: ", 10, 1, 1000000,
+				"Error, ingrese un precio valido: ", &auxiliary.price);
+		getInt("Ingrese la cantidad de unidades que desea publicar: ", 10, 1, 1000000,
+				"Error, ingrese una cantidad valida: ", &auxiliary.stock);
 	}
 	else
 	{
@@ -514,30 +522,41 @@ int sProduct_listUserProducts(sProduct productList[], int len, int status1, int 
 int sProduct_addProductStock(sProduct productList[], int len, int userID) {
 	int rtn = 0;
 	int productIndex;
+	int flag;
 	int stockToAdd;
 
 	if(productList != NULL)
 	{
 		if(len > 0 && userID > 0)
 		{
-
-			productIndex = sProduct_chooseUserProduct(productList, len, userID);
-			if(productIndex > -1)
+			flag = sProduct_verifyUserProducts(productList, len, userID);
+			if(flag == 1)
 			{
-			getInt("Ingrese la cantidad de unidades que desea agregar: ", 10, 1, 10000,
-					"\nError, ingrese una cantidad valida: ", &stockToAdd);
-			if(continueOrNot("Desea confirmar el ingreso de stock? (S/N): ",
-					"Error, ingrese una opcion valida (S/N)"))
-			{
-				productList[productIndex].stock += stockToAdd;
-				printf("El stock se ha renovado exitosamente.\n\n");
-				system("pause");
-				system("cls");
-			}
+				productIndex = sProduct_chooseUserProduct(productList, len, userID);
+				if(productIndex > -1)
+				{
+					getInt("Ingrese la cantidad de unidades que desea agregar: ", 10, 1, 10000,
+							"\nError, ingrese una cantidad valida: ", &stockToAdd);
+					if(continueOrNot("Desea confirmar el ingreso de stock? (S/N): ",
+							"Error, ingrese una opcion valida (S/N)"))
+					{
+						productList[productIndex].stock += stockToAdd;
+						printf("El stock se ha renovado exitosamente.\n\n");
+						system("pause");
+						system("cls");
+					}
+				}
+				else
+				{
+					system("cls");
+				}
 			}
 			else
 			{
+				printf("Usted no tiene productos disponibles para renovar stock.\n");
+				system("pause");
 				system("cls");
+
 			}
 		}
 		else
@@ -701,10 +720,42 @@ int sProduct_verifyProductsByName(sProduct productList[], int len, char productN
 	return rtn;
 }
 
+int sProduct_verifyUserProducts(sProduct productList[], int len, int userID) {
+	int rtn = 0;
+	int i;
+
+	if (productList != NULL)
+	{
+		if (len > 0 && userID > 0)
+		{
+			for (i = 0; i < len; i++)
+			{	//LISTS EVERY PRODUCT WITH STATUS GIVEN
+				if(productList[i].FK_userID == userID)
+				{
+					if (productList[i].isEmpty == FULL|| productList[i].isEmpty == OUT_OF_STOCK)
+					{
+						rtn = 1;
+					}
+				}
+			}
+		}
+		else
+		{
+			rtn = -1;//ERROR - ARRAY LENGHT
+		}
+	}
+	else
+	{
+		rtn = -2;//ERROR - NULL POINTER
+	}
+
+	return rtn;
+}
+
 void sProduct_hardCodeProducts (sProduct productList[]) {
 
 	productList[0].productID = 4000;
-	productList[0].FK_userID = 1001;
+	productList[0].FK_userID = 1000;
 	productList[0].isEmpty = 2;
 	productList[0].category = 4;
 	strcpy(productList[0].productName, "Pendrive Kingston");
@@ -712,7 +763,7 @@ void sProduct_hardCodeProducts (sProduct productList[]) {
 	productList[0].stock = 100;
 
 	productList[1].productID = 4001;
-	productList[1].FK_userID = 1001;
+	productList[1].FK_userID = 1002;
 	productList[1].isEmpty = 2;
 	productList[1].category = 3;
 	strcpy(productList[1].productName, "Pantalon Jean");
@@ -720,7 +771,7 @@ void sProduct_hardCodeProducts (sProduct productList[]) {
 	productList[1].stock = 25;
 
 	productList[2].productID = 4002;
-	productList[2].FK_userID = 1001;
+	productList[2].FK_userID = 1002;
 	productList[2].isEmpty = 1;
 	productList[2].category = 1;
 	strcpy(productList[2].productName, "Papas Pringles");
@@ -728,7 +779,7 @@ void sProduct_hardCodeProducts (sProduct productList[]) {
 	productList[2].stock = 0;
 
 	productList[3].productID = 4003;
-	productList[3].FK_userID = 1000;
+	productList[3].FK_userID = 1002;
 	productList[3].isEmpty = 2;
 	productList[3].category = 2;
 	strcpy(productList[3].productName, "Ladrillos huecos");
@@ -744,7 +795,7 @@ void sProduct_hardCodeProducts (sProduct productList[]) {
 	productList[4].stock = 50;
 
 	productList[5].productID = 4005;
-	productList[5].FK_userID = 1000;
+	productList[5].FK_userID = 1002;
 	productList[5].isEmpty = 2;
 	productList[5].category = 1;
 	strcpy(productList[5].productName, "Galletitas Oreo");
@@ -752,7 +803,7 @@ void sProduct_hardCodeProducts (sProduct productList[]) {
 	productList[5].stock = 100;
 
 	productList[6].productID = 4006;
-	productList[6].FK_userID = 1000;
+	productList[6].FK_userID = 1002;
 	productList[6].isEmpty = 2;
 	productList[6].category = 2;
 	strcpy(productList[6].productName, "Bolsas de cemento 15kg");
@@ -768,7 +819,7 @@ void sProduct_hardCodeProducts (sProduct productList[]) {
 	productList[7].stock = 10;
 
 	productList[8].productID = 4008;
-	productList[8].FK_userID = 1001;
+	productList[8].FK_userID = 1000;
 	productList[8].isEmpty = 2;
 	productList[8].category = 4;
 	strcpy(productList[8].productName, "Pendrive Kingston");

@@ -247,30 +247,43 @@ int sUser_deleteUser(sUser userList[], int len) {
 	int rtn = 0;
 	int idToCancel;
 	int indexToCancel;
+	int chosenOption;
 
 	if(userList != NULL)
 	{
 		if(len > 0)
 		{
 			sUser_listUsers(userList, len, ACTIVE, ACTIVE);//LISTS ALL THE USERS WITH STATUS 'ACTIVE'
-			getInt("Ingrese el ID del usuario que desea dar de baja del sistema: ", 10, 1000, 3000,
-					"\nError, ingrese un ID de la lista: ", &idToCancel);//ASKS FOR USERID TO DELETE
-
-			indexToCancel = sUser_findUserIndexById(userList, len, idToCancel);//FIND USER INDEX
-
-			while(indexToCancel == -1)
-			{	//IF DOESN'T FOUND USER INDEX ASKS FOR ANOTHER ID
-				getInt("El ID no existe, por favor ingrese un ID de la lista: ", 10, 4000, 5000,
-						"\nError, ingrese un ID de la lista: ", &idToCancel);
-				indexToCancel = sUser_findUserIndexById(userList, len, idToCancel);
-			}
-			//ASKS FOR CONFIRMATION
-			if(continueOrNot("\nDesea confirmar la baja? (S/N): ", "\nError, ingrese una opcion "
-					"valida (S/N): "))
+			getInt("Que accion desea realizar?\n\n"
+					"1) Dar de baja a un usuario\n"
+					"0) Volver al menu anterior\n\n"
+					"Ingrese una opcion valida: ", 10, 0, 1,
+					"Error, ingrese una opcion valida: ", &chosenOption);
+			if(chosenOption == 1)
 			{
-				userList[indexToCancel].isEmpty = -1;//SET STATUS 'DELETED'
-				puts("El usuario ha sido dado de baja del sistema.\n");
-				system("pause");
+				getInt("Ingrese el ID del usuario que desea dar de baja del sistema: ", 10, 1000, 3000,
+						"\nError, ingrese un ID de la lista: ", &idToCancel);//ASKS FOR USERID TO DELETE
+
+				indexToCancel = sUser_findUserIndexById(userList, len, idToCancel);//FIND USER INDEX
+
+				while(indexToCancel == -1)
+				{	//IF DOESN'T FOUND USER INDEX ASKS FOR ANOTHER ID
+					getInt("El ID no existe, por favor ingrese un ID de la lista: ", 10, 4000, 5000,
+							"\nError, ingrese un ID de la lista: ", &idToCancel);
+					indexToCancel = sUser_findUserIndexById(userList, len, idToCancel);
+				}
+				//ASKS FOR CONFIRMATION
+				if(continueOrNot("\nDesea confirmar la baja? (S/N): ", "\nError, ingrese una opcion "
+						"valida (S/N): "))
+				{
+					userList[indexToCancel].isEmpty = -1;//SET STATUS 'DELETED'
+					puts("El usuario ha sido dado de baja del sistema.\n");
+					system("pause");
+					system("cls");
+				}
+			}
+			else
+			{
 				system("cls");
 			}
 		}
@@ -356,7 +369,6 @@ int sUser_findUserIndexByEmail(sUser userList[], int len, char givenEmail[]) {
 	{
 		rtn = -3;//ERROR - ARRAY DOESN'T EXIST
 	}
-
 	return rtn;
 }
 

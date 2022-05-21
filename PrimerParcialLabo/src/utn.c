@@ -47,6 +47,7 @@ int utn_myGets(char cadena[], int longitud){
 	fflush(stdin);
 	if(cadena != NULL && longitud > 0 && fgets(cadena, longitud, stdin))
 	{
+		fflush(stdin);
 		if(cadena[strlen(cadena)-1] == '\n')
 		{
 			cadena[strlen(cadena)-1] = '\0' ;
@@ -57,11 +58,12 @@ int utn_myGets(char cadena[], int longitud){
 }
 
 
-int utn_Get_Int(int *pResultado){
+int utn_Get_Int(int *pResultado) {
 
 	int retorno = -1;
 	char buffer[64];
 
+	fflush(stdin);
 	utn_myGets(buffer, 64);
 
 	if(utn_esNumerica(buffer)==0)
@@ -73,6 +75,23 @@ int utn_Get_Int(int *pResultado){
 	return retorno;
 }
 
+
+int utn_Get_Float(float *pResultado) {
+
+	int retorno = -1;
+	char buffer[64];
+
+	fflush(stdin);
+	utn_myGets(buffer, 64);
+
+	if(utn_esNumerica(buffer)==0)
+	{
+		*pResultado = atof(buffer);
+		retorno = 0;
+	}
+
+	return retorno;
+}
 
 int utn_esNumerica (char cadena[]){
 
@@ -96,62 +115,65 @@ int utn_esNumerica (char cadena[]){
 
 int getInt(char mensaje[],int reintentos, int minimo, int maximo, char mensajeError[], int *pNumeroIngresado){
 
-	int retorno= -1;
+	int rtn = -1;
 	int auxiliarInt;
-	int retornoScanf;
+	int retorno;
 
-	if(mensaje!=NULL && reintentos>0 && minimo<maximo && mensajeError!=NULL && pNumeroIngresado!=NULL){
+	if(mensaje != NULL && reintentos > 0 && minimo < maximo && mensajeError !=NULL && pNumeroIngresado != NULL){
 
 		printf("%s", mensaje);
-		retornoScanf = utn_Get_Int(&auxiliarInt);
+		fflush(stdin);
+		retorno = utn_Get_Int(&auxiliarInt);
 		do{
-			if(auxiliarInt<minimo || auxiliarInt>maximo || retornoScanf!=0)
+			if(auxiliarInt<minimo || auxiliarInt>maximo || retorno != 0)
 			{
 				printf("%s", mensajeError);
-				retornoScanf= utn_Get_Int(&auxiliarInt);
+				fflush(stdin);
+				retorno = utn_Get_Int(&auxiliarInt);
 				reintentos--;
 			}
 			else
 			{
 				*pNumeroIngresado=auxiliarInt;
-				reintentos=0;
-				retorno=0;
+				reintentos = 0;
+				rtn = 0;
 			}
 
 		}while(reintentos > 0);
 	}
-	return retorno;
+	return rtn;
 }
 
 
 int getFloat(char mensaje[],int reintentos, int minimo, int maximo, char mensajeError[], float *pNumeroIngresado){
 
-	int retorno= -1;
+	int rtn= -1;
 	float auxiliarFloat;
-	int retornoScanf;
+	int retorno;
 
 	if(mensaje!=NULL && reintentos>0 && minimo<maximo && mensajeError!=NULL && pNumeroIngresado!=NULL){
 
 		printf("%s", mensaje);
-		retornoScanf= scanf(" %f", &auxiliarFloat);
+		fflush(stdin);
+		retorno = utn_Get_Float(&auxiliarFloat);
 		do{
-			if(auxiliarFloat < minimo || auxiliarFloat > maximo || retornoScanf != 1)
+			if(auxiliarFloat < minimo || auxiliarFloat > maximo || retorno != 0)
 			{
 				printf("%s", mensajeError);
-				retornoScanf= scanf(" %f", &auxiliarFloat);
+				fflush(stdin);
+				retorno = utn_Get_Float(&auxiliarFloat);
 				reintentos--;
 			}
 			else
 			{
 				*pNumeroIngresado=auxiliarFloat;
 				reintentos=0;
-				retorno=0;
+				rtn = 0;
 			}
-
 		}while(reintentos > 0);
 	}
 
-	return retorno;
+	return rtn;
 }
 
 int continueOrNot(char message[], char errorMessage[]){
@@ -162,12 +184,14 @@ int continueOrNot(char message[], char errorMessage[]){
 	if(message != NULL && errorMessage != NULL)
 	{
 		printf(message);
+		fflush(stdin);
 		utn_myGets(&answer, 2);
 		answer = toupper(answer);
 
 		while(answer != 83 && answer != 78)
 		{
 			printf(errorMessage);
+			fflush(stdin);
 			utn_myGets(&answer, 2);
 			answer = toupper(answer);
 		}
@@ -185,26 +209,30 @@ int continueOrNot(char message[], char errorMessage[]){
 	return rtn;
 }
 
-int getChar(char message[], int retries, char min, char max, char errorMessage[], char *character) {
+int getChar(char message[], int retries, char errorMessage[], char *character) {
 
-	int rtn = 0;//ERROR - NULL POINTER
+	int rtn = -1;//ERROR - NULL POINTER
 
 	if(message != NULL && errorMessage != NULL && character != NULL)
 	{
-		if(retries > 0 && min > 0 && max > 0)
+		if(retries > 0)
 		{
+			printf(message);
+			fflush(stdin);
+			utn_myGets(character, 2);
 			do{
-				printf(message);
-				fflush(stdin);
-				fgets(character, 2, stdin);
-				while(*character < min || *character > max)
+				if(*character < 65 || (*character > 90 && *character < 97) || *character > 122)
 				{
 					retries--;
 					printf(errorMessage);
 					fflush(stdin);
-					fgets(character, 2, stdin);
+					utn_myGets(character, 2);
 				}
-				rtn = 0;
+				else
+				{
+					retries = 0;
+					rtn = 0;
+				}
 			}while(retries > 0);
 		}
 		else
@@ -231,8 +259,8 @@ int getEmail(char message[], char errorMessage[], int retries, char email[]) {
 
 	if(message != NULL && errorMessage != NULL && email)
 	{
-		fflush(stdin);
 		printf(message);
+		fflush(stdin);
 		utn_myGets(auxiliary, 25);
 		do{
 			flag1 = 0;
@@ -254,6 +282,7 @@ int getEmail(char message[], char errorMessage[], int retries, char email[]) {
 			if(flag1 != 1 || flag2 != 1)
 			{
 				printf(errorMessage);
+				fflush(stdin);
 				utn_myGets(auxiliary, 25);
 				retries--;
 			}

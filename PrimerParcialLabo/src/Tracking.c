@@ -95,7 +95,7 @@ int sTracking_addTracking(sTracking trackingList[], int len, int idProduct, int 
 sTracking sTracking_getTrackingData(int idProduct, int quantity, int postalCode) {
 	sTracking auxiliary;
 
-	int timeToAdd;
+	long int timeToAdd;
 
 	if(idProduct > 0 && quantity > 0 && postalCode > 0)
 	{
@@ -128,19 +128,18 @@ sTracking sTracking_getTrackingData(int idProduct, int quantity, int postalCode)
 						auxiliary.distanceKM = 20;
 					}
 
-					timeToAdd = auxiliary.distanceKM / 10 * 20;
-					auxiliary.arrivalTime = time_Add(timeToAdd);
+
+
 				}
 			}
 		}
+		timeToAdd = auxiliary.distanceKM / 10 * 20;
+		auxiliary.arrivalTime = time_Add(timeToAdd);
 	}
 	else
 	{
 		printf("Error de parametros\n");
 	}
-
-
-
 	return auxiliary;
 }
 
@@ -191,7 +190,7 @@ int sTracking_deleteTracking(sTracking trackingList[], int lenT) {
 		if(lenT > 0)
 		{
 			getInt("Ingrese el ID de la compra que desea cancelar: ", 10, 10000, 12000,
-					"\nError, ingrese un ID de la lista: ", &idToCancel);
+					"Error, ingrese un ID de la lista: ", &idToCancel);
 			indexToCancel = sTracking_findTrackingIndexById(trackingList, lenT, idToCancel);
 
 			while(trackingList[indexToCancel].isEmpty != 1)
@@ -202,11 +201,15 @@ int sTracking_deleteTracking(sTracking trackingList[], int lenT) {
 			}
 
 			if(continueOrNot("\nDesea confirmar la cancelacion? (S/N): ",
-					"\nError, ingrese una opcion valida (S/N): "))
+					"Error, ingrese una opcion valida (S/N): "))
 			{
 				trackingList[indexToCancel].isEmpty = -2;
-				puts("Su compra ha sido cancelada.");
+				puts("\nSu compra ha sido cancelada.");
 				system("pause");
+				system("cls");
+			}
+			else
+			{
 				system("cls");
 			}
 		}
@@ -295,10 +298,10 @@ int sTracking_findTrackingIndexByUserId(sTracking trackingList[], int len, int g
 
 void sTracking_hardCodeTrackings(sTracking trackingList[]) {
 
-	trackingList[0].FK_userID = 1001;
+	trackingList[0].FK_userID = 1000;
 	trackingList[0].arrivalTime = time_Current();
 	trackingList[0].distanceKM = 30;
-	trackingList[0].isEmpty = -1;
+	trackingList[0].isEmpty = 1;
 	trackingList[0].productID = 4004;
 	trackingList[0].quantity = 1;
 	trackingList[0].trackingID = 10000;
@@ -306,7 +309,7 @@ void sTracking_hardCodeTrackings(sTracking trackingList[]) {
 	trackingList[1].FK_userID = 1000;
 	trackingList[1].arrivalTime = time_Add(180);
 	trackingList[1].distanceKM = 30;
-	trackingList[1].isEmpty = -2;
+	trackingList[1].isEmpty = 1;
 	trackingList[1].productID = 4005;
 	trackingList[1].quantity = 6;
 	trackingList[1].trackingID = 10001;
@@ -314,7 +317,7 @@ void sTracking_hardCodeTrackings(sTracking trackingList[]) {
 	trackingList[2].FK_userID = 1000;
 	trackingList[2].arrivalTime = time_Add(40);
 	trackingList[2].distanceKM = 30;
-	trackingList[2].isEmpty = -1;
+	trackingList[2].isEmpty = 1;
 	trackingList[2].productID = 4007;
 	trackingList[2].quantity = 2;
 	trackingList[2].trackingID = 10002;
@@ -322,7 +325,7 @@ void sTracking_hardCodeTrackings(sTracking trackingList[]) {
 	trackingList[3].FK_userID = 1000;
 	trackingList[3].arrivalTime = time_Current();
 	trackingList[3].distanceKM = 30;
-	trackingList[3].isEmpty = -2;
+	trackingList[3].isEmpty = 1;
 	trackingList[3].productID = 4001;
 	trackingList[3].quantity = 3;
 	trackingList[3].trackingID = 10003;
@@ -330,7 +333,7 @@ void sTracking_hardCodeTrackings(sTracking trackingList[]) {
 	trackingList[4].FK_userID = 1000;
 	trackingList[4].arrivalTime = time_Add(250);
 	trackingList[4].distanceKM = 30;
-	trackingList[4].isEmpty = -1;
+	trackingList[4].isEmpty = 1;
 	trackingList[4].productID = 4002;
 	trackingList[4].quantity = 3;
 	trackingList[4].trackingID = 10004;
